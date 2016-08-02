@@ -1,62 +1,53 @@
-﻿using Google.Protobuf;
-using POGOProtos.Networking.Requests;
-using POGOProtos.Networking.Requests.Messages;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Google.Protobuf;
 using PokemonGo.RocketAPI.Enums;
 using PokemonGo.RocketAPI.Exceptions;
 using PokemonGo.RocketAPI.Extensions;
 using PokemonGo.RocketAPI.Helpers;
 using PokemonGo.RocketAPI.Login;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using POGOProtos.Networking.Requests;
+using POGOProtos.Networking.Requests.Messages;
 
 namespace PokemonGo.RocketAPI.Rpc
 {
     public delegate void GoogleDeviceCodeDelegate(string code, string uri);
-
     public class Login : BaseRpc
     {
-        public event GoogleDeviceCodeDelegate GoogleDeviceCodeEvent;
+        //public event GoogleDeviceCodeDelegate GoogleDeviceCodeEvent;
+        private ILoginType login;
 
         public Login(Client client) : base(client)
         {
+            login = SetLoginType(client.Settings);
         }
 
-        public async Task DoGoogleLogin()
+        private static ILoginType SetLoginType(ISettings settings)
         {
-            _client.AuthType = AuthType.Google;
-
-            GoogleLogin.TokenResponseModel tokenResponse = null;
-            if (_client.Settings.GoogleRefreshToken != string.Empty)
+            switch (settings.AuthType)
             {
-                tokenResponse = await GoogleLogin.GetAccessToken(_client.Settings.GoogleRefreshToken);
-                _client.AuthToken = tokenResponse?.id_token;
+                case AuthType.Google:
+                    return new GoogleLogin(settings.GoogleUsername, settings.GooglePassword);
+                case AuthType.Ptc:
+                    return new PtcLogin(settings.PtcUsername, settings.PtcPassword);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(settings.AuthType), "Unknown AuthType");
             }
-
-            if (_client.AuthToken == null)
-            {
-                var deviceCode = await GoogleLogin.GetDeviceCode();
-                GoogleDeviceCodeEvent?.Invoke(deviceCode.user_code, deviceCode.verification_url);
-                tokenResponse = await GoogleLogin.GetAccessToken(deviceCode);
-                _client.Settings.GoogleRefreshToken = tokenResponse?.refresh_token;
-                _client.AuthToken = tokenResponse?.id_token;
-            }
-
-            await SetServer();
         }
 
-        public async Task DoPtcLogin(string username, string password)
+        public async Task DoLogin()
         {
-            _client.AuthToken = await PtcLogin.GetAccessToken(username, password);
-            _client.AuthType = AuthType.Ptc;
-
-            await SetServer();
+            _client.AuthToken = await login.GetAccessToken().ConfigureAwait(false);
+            await SetServer().ConfigureAwait(false);
         }
 
         private async Task SetServer()
         {
+            #region Standard intial request messages in right Order
+
             var getPlayerMessage = new GetPlayerMessage();
             var getHatchedEggsMessage = new GetHatchedEggsMessage();
             var getInventoryMessage = new GetInventoryMessage
@@ -69,7 +60,9 @@ namespace PokemonGo.RocketAPI.Rpc
                 Hash = "05daf51635c82611d1aac95c0b051d3ec088a930"
             };
 
-            var serverRequest = RequestBuilder.GetRequestEnvelope(
+            #endregion
+
+            var serverRequest = RequestBuilder.GetInitialRequestEnvelope(
                 new Request
                 {
                     RequestType = RequestType.GetPlayer,
@@ -92,13 +85,18 @@ namespace PokemonGo.RocketAPI.Rpc
                     RequestMessage = downloadSettingsMessage.ToByteString()
                 });
 
+
             var serverResponse = await PostProto<Request>(Resources.RpcUrl, serverRequest);
 
             if (serverResponse.AuthTicket == null)
+            {
+                _client.AuthToken = null;
                 throw new AccessTokenExpiredException();
+            }
 
             _client.AuthTicket = serverResponse.AuthTicket;
             _client.ApiUrl = serverResponse.ApiUrl;
         }
+
     }
 }

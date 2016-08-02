@@ -1,16 +1,16 @@
-﻿using Google.Protobuf;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Google.Protobuf;
+using PokemonGo.RocketAPI.Extensions;
+using PokemonGo.RocketAPI.Helpers;
 using POGOProtos.Data.Player;
 using POGOProtos.Enums;
 using POGOProtos.Networking.Requests;
 using POGOProtos.Networking.Requests.Messages;
 using POGOProtos.Networking.Responses;
-using PokemonGo.RocketAPI.Extensions;
-using PokemonGo.RocketAPI.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PokemonGo.RocketAPI.Rpc
 {
@@ -40,7 +40,7 @@ namespace PokemonGo.RocketAPI.Rpc
             return await PostProtoPayload<Request, PlayerUpdateResponse>(updatePlayerLocationRequestEnvelope);
         }
 
-        public void SetCoordinates(double lat, double lng, double altitude)
+        internal void SetCoordinates(double lat, double lng, double altitude)
         {
             _client.CurrentLatitude = lat;
             _client.CurrentLongitude = lng;

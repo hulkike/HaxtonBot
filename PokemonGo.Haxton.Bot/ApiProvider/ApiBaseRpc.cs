@@ -32,6 +32,7 @@ namespace PokemonGo.Haxton.Bot.ApiProvider
         private readonly PokemonHttpClient _pokemonHttpClient;
         private int _requestPerSecond { get; set; }
         private readonly object _lockObject = new object();
+        private IApiFailureStrategy failureStrategy = new ApiFailureStrategy();
 
         public RequestBuilder RequestBuilder
             => new RequestBuilder(_client.AuthToken, _client.AuthType, _client.CurrentLatitude,
@@ -65,7 +66,7 @@ namespace PokemonGo.Haxton.Bot.ApiProvider
             //        Thread.Sleep(100);
             //    _requestPerSecond++;
             //}
-            return await _pokemonHttpClient.PostProtoPayload<TRequest, TResponsePayload>(ApiUrl, requestEnvelops);
+            return await _pokemonHttpClient.PostProtoPayload<TRequest, TResponsePayload>(ApiUrl, requestEnvelops, failureStrategy);
         }
 
         public async Task<TResponsePayload> PostProtoPayload<TRequest, TResponsePayload>(RequestEnvelope requestEnvelope) where TRequest : IMessage<TRequest>
@@ -78,7 +79,7 @@ namespace PokemonGo.Haxton.Bot.ApiProvider
             //    _requestPerSecond++;
             //}
 
-            return await _pokemonHttpClient.PostProtoPayload<TRequest, TResponsePayload>(ApiUrl, requestEnvelope);
+            return await _pokemonHttpClient.PostProtoPayload<TRequest, TResponsePayload>(ApiUrl, requestEnvelope, failureStrategy);
         }
 
         public async Task<ResponseEnvelope> PostProto<TRequest>(RequestEnvelope requestEnvelope) where TRequest : IMessage<TRequest>

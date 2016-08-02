@@ -23,10 +23,10 @@ namespace PokemonGo.Haxton.Bot.Settings
             GooglePassword = ConfigurationManager.AppSettings["GooglePassword"];
         }
 
-        public AuthType AuthType { get; }
-        public double DefaultLatitude { get; }
-        public double DefaultLongitude { get; }
-        public double DefaultAltitude { get; }
+        public AuthType AuthType { get; set; }
+        public double DefaultLatitude { get; set; }
+        public double DefaultLongitude { get; set; }
+        public double DefaultAltitude { get; set; }
 
         private string _googleRefreshToken;
 
@@ -47,10 +47,10 @@ namespace PokemonGo.Haxton.Bot.Settings
             }
         }
 
-        public string PtcPassword { get; }
-        public string PtcUsername { get; }
-        public string GoogleUsername { get; }
-        public string GooglePassword { get; }
+        public string PtcPassword { get; set; }
+        public string PtcUsername { get; set; }
+        public string GoogleUsername { get; set; }
+        public string GooglePassword { get; set; }
         public string ApiUrl { get; set; }
     }
 }

@@ -43,8 +43,8 @@
       <HintPath>..\packages\NLog.4.4.0-betaV15\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="POGOProtos, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\POGOProtos.1.4.0\lib\net45\POGOProtos.dll</HintPath>
+    <Reference Include="POGOProtos, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\POGOProtos.1.5.0\lib\net45\POGOProtos.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -71,6 +71,7 @@
     <Compile Include="ApiProvider\ApiClient.cs" />
     <Compile Include="ApiProvider\ApiDownload.cs" />
     <Compile Include="ApiProvider\ApiEncounter.cs" />
+    <Compile Include="ApiProvider\ApiFailureStrategy.cs" />
     <Compile Include="ApiProvider\ApiFort.cs" />
     <Compile Include="ApiProvider\ApiInventory.cs" />
     <Compile Include="ApiProvider\ApiLogin.cs" />

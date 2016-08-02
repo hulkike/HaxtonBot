@@ -1,13 +1,13 @@
-﻿using POGOProtos.Enums;
-using POGOProtos.Networking.Requests;
-using POGOProtos.Networking.Requests.Messages;
-using POGOProtos.Networking.Responses;
-using PokemonGo.RocketAPI.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PokemonGo.RocketAPI.Helpers;
+using POGOProtos.Enums;
+using POGOProtos.Networking.Requests;
+using POGOProtos.Networking.Requests.Messages;
+using POGOProtos.Networking.Responses;
 
 namespace PokemonGo.RocketAPI.Rpc
 {
@@ -16,14 +16,13 @@ namespace PokemonGo.RocketAPI.Rpc
         public Download(Client client) : base(client)
         {
         }
-
         public async Task<DownloadSettingsResponse> GetSettings()
         {
             var message = new DownloadSettingsMessage
             {
                 Hash = "05daf51635c82611d1aac95c0b051d3ec088a930"
             };
-
+            
             return await PostProtoPayload<Request, DownloadSettingsResponse>(RequestType.DownloadSettings, message);
         }
 
@@ -63,5 +62,6 @@ namespace PokemonGo.RocketAPI.Rpc
                 AssetId = { assetIds }
             });
         }
+
     }
 }

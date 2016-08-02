@@ -38,31 +38,17 @@ namespace PokemonGo.Haxton.Bot.ApiProvider
         public async Task DoGoogleLogin(string username, string password)
         {
             _client.AuthType = AuthType.Google;
-
-            _client.AuthToken = GoogleLogin.DoLogin(username, password);
-            //GoogleLogin.TokenResponseModel tokenResponse;
-            //if (_client.Settings.GoogleRefreshToken != string.Empty)
-            //{
-            //    tokenResponse = await GoogleLogin.GetAccessToken(_client.Settings.GoogleRefreshToken);
-            //    _client.AuthToken = tokenResponse?.id_token;
-            //}
-
-            //if (_client.AuthToken == null)
-            //{
-            //    var deviceCode = await GoogleLogin.GetDeviceCode();
-            //    GoogleDeviceCodeEvent?.Invoke(deviceCode.user_code, deviceCode.verification_url);
-            //    tokenResponse = await GoogleLogin.GetAccessToken(deviceCode);
-            //    _client.Settings.GoogleRefreshToken = tokenResponse?.refresh_token;
-            //    _client.AuthToken = tokenResponse?.id_token;
-            //}
+            ILoginType GoogleLogin = new GoogleLogin(username, password);
+            _client.AuthToken = await GoogleLogin.GetAccessToken();
 
             await SetServer();
         }
 
         public async Task DoPtcLogin(string username, string password)
         {
-            _client.AuthToken = await PtcLogin.GetAccessToken(username, password);
             _client.AuthType = AuthType.Ptc;
+            ILoginType PtcLogin = new PtcLogin(username, password);
+            _client.AuthToken = await PtcLogin.GetAccessToken();
 
             await SetServer();
         }
